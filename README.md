@@ -43,3 +43,22 @@ Picto box images render black. <br>
 <h3>Build Instructions:</h3>
 1. Edit the app/build.gradle file to point to your ndk folder. NDK 26+ tested as working.<br>
 2. Open the project in android studio and build.<br>
+
+# Custom Assets
+
+Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place them in the `mods` folder.
+
+If you're interested in creating and/or packing your own custom asset `.o2r`/`.otr` files, check out the following tools:
+* [**retro - OTR and O2R generator**](https://github.com/HarbourMasters64/retro)
+* [**fast64 - Blender plugin (Note that MM is not fully supported at this time)**](https://github.com/HarbourMasters/fast64)
+
+# Development
+
+If you want to manually compile 2S2H, please consult the [building instructions](docs/BUILDING.md).
+
+<a href="https://github.com/Kenix3/libultraship/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/poweredbylus.darkmode.png">
+    <img alt="Powered by libultraship" src="./docs/poweredbylus.lightmode.png">
+  </picture>
+</a>
