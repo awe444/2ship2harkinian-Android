@@ -37,6 +37,55 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(dr_libs)
 
+# For Android, opus/opusfile must be built from source (not available as system packages)
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    include(FetchContent)
+
+    FetchContent_Declare(
+        Ogg
+        GIT_REPOSITORY https://github.com/xiph/ogg.git
+        GIT_TAG v1.3.5
+    )
+    FetchContent_MakeAvailable(Ogg)
+
+    FetchContent_Declare(
+        Opus
+        GIT_REPOSITORY https://github.com/xiph/opus.git
+        GIT_TAG v1.5.2
+    )
+    set(OPUS_BUILD_SHARED_LIBRARY OFF CACHE BOOL "" FORCE)
+    set(OPUS_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(Opus)
+
+    # opusfile v0.12 predates cmake support; build its sources directly
+    FetchContent_Declare(
+        opusfile_src
+        GIT_REPOSITORY https://github.com/xiph/opusfile.git
+        GIT_TAG v0.12
+    )
+    FetchContent_GetProperties(opusfile_src)
+    if(NOT opusfile_src_POPULATED)
+        FetchContent_Populate(opusfile_src)
+    endif()
+    add_library(opusfile STATIC
+        ${opusfile_src_SOURCE_DIR}/src/info.c
+        ${opusfile_src_SOURCE_DIR}/src/internal.c
+        ${opusfile_src_SOURCE_DIR}/src/opusfile.c
+        ${opusfile_src_SOURCE_DIR}/src/stream.c
+    )
+    target_include_directories(opusfile
+        PUBLIC  ${opusfile_src_SOURCE_DIR}/include
+        PRIVATE ${opusfile_src_SOURCE_DIR}/src
+    )
+    # Disable HTTP/URL support (requires OpenSSL, not desired on Android)
+    # Disable floating-point API (integer decode is sufficient for game audio)
+    target_compile_definitions(opusfile PRIVATE
+        OP_DISABLE_HTTP
+        OP_FIXED_POINT
+    )
+    target_link_libraries(opusfile PUBLIC Opus::opus ogg)
+endif()
+
 ################################################################################
 # Global configuration types
 ################################################################################
@@ -598,6 +647,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
         "libultraship;"
         "ZAPDLib;"
         SDL2::SDL2
+        opusfile
         Threads::Threads
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
