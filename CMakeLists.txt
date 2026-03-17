@@ -278,6 +278,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     )
 endif()
 add_subdirectory(OTRExporter)
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # OTRExporter includes ZAPDTR/ZAPD headers that need tinyxml2.h, and its
+    # own ExporterArchiveO2R.h needs <zip.h>.  On PC these are system-installed
+    # headers visible by default; on Android they come from FetchContent and
+    # must be explicitly linked so the include dirs propagate.
+    target_link_libraries(OTRExporter PRIVATE tinyxml2::tinyxml2 libzip::zip)
+endif()
 add_subdirectory(mm)
 
 set_property(TARGET 2ship PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
