@@ -71,7 +71,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     # add_library(Opus::opus ALIAS opus)), and CMake doesn't allow
     # target_include_directories on ALIAS targets.  Use the real target name.
     target_include_directories(opus INTERFACE
-        "${CMAKE_BINARY_DIR}/opus-compat"
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/opus-compat>
     )
 
     # opusfile v0.12 predates cmake support; build its sources directly
