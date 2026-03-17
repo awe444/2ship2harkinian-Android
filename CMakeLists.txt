@@ -157,9 +157,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 ################################################################################
 # Android FetchContent dependencies
-# kenix3/libultraship uses find_package() for these, but they aren't available
-# as system packages on Android.  Declaring them here with OVERRIDE_FIND_PACKAGE
-# lets the later find_package() calls in libultraship/src/CMakeLists.txt succeed.
+# libultraship and ZAPDTR use find_package() for several libraries that aren't
+# available as system packages on Android.  Declaring them here with
+# OVERRIDE_FIND_PACKAGE lets those later find_package() calls succeed.
 ################################################################################
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     include(FetchContent)
@@ -214,6 +214,26 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
             OVERRIDE_FIND_PACKAGE
         )
         FetchContent_MakeAvailable(libzip)
+    endif()
+
+    find_package(PNG QUIET)
+    if (NOT ${PNG_FOUND})
+        set(PNG_SHARED OFF CACHE BOOL "" FORCE)
+        set(PNG_STATIC ON CACHE BOOL "" FORCE)
+        set(PNG_TESTS OFF CACHE BOOL "" FORCE)
+        FetchContent_Declare(
+            PNG
+            GIT_REPOSITORY https://github.com/glennrp/libpng.git
+            GIT_TAG v1.6.40
+            OVERRIDE_FIND_PACKAGE
+        )
+        FetchContent_MakeAvailable(PNG)
+        # libpng creates png_static but not the PNG::PNG imported target that
+        # FindPNG.cmake normally provides.  ZAPD links against PNG::PNG.
+        if (NOT TARGET PNG::PNG)
+            add_library(PNG::PNG ALIAS png_static)
+        endif()
+        set(PNG_PNG_INCLUDE_DIR "${png_SOURCE_DIR}" CACHE PATH "" FORCE)
     endif()
 endif()
 
