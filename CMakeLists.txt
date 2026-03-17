@@ -260,6 +260,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship/port/mobile
         ${CMAKE_SOURCE_DIR}/android-compat
     )
+    # libultraship's public header O2rArchive.h includes "zip.h".  On PC,
+    # libzip is system-installed so zip.h is globally visible.  On Android,
+    # it comes from FetchContent and the include dir must be explicitly
+    # propagated to all consumers via a PUBLIC link.
+    target_link_libraries(libultraship PUBLIC libzip::zip)
 endif()
 add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
@@ -279,11 +284,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 endif()
 add_subdirectory(OTRExporter)
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-    # OTRExporter includes ZAPDTR/ZAPD headers that need tinyxml2.h, and its
-    # own ExporterArchiveO2R.h needs <zip.h>.  On PC these are system-installed
-    # headers visible by default; on Android they come from FetchContent and
-    # must be explicitly linked so the include dirs propagate.
-    target_link_libraries(OTRExporter PRIVATE tinyxml2::tinyxml2 libzip::zip)
+    # OTRExporter includes ZAPDTR/ZAPD headers (e.g. ZResource.h) that
+    # transitively need tinyxml2.h.  On PC it's a system header; on Android
+    # it comes from FetchContent and must be explicitly linked.
+    # (libzip::zip is already propagated via libultraship's PUBLIC link.)
+    target_link_libraries(OTRExporter PRIVATE tinyxml2::tinyxml2)
 endif()
 add_subdirectory(mm)
 
