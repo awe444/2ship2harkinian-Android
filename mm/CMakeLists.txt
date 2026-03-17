@@ -67,7 +67,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
         file(CREATE_LINK "${opus_SOURCE_DIR}/include"
              "${CMAKE_BINARY_DIR}/opus-compat/opus" SYMBOLIC)
     endif()
-    target_include_directories(Opus::opus INTERFACE
+    # Opus::opus is an ALIAS target (created by opus's CMakeLists.txt via
+    # add_library(Opus::opus ALIAS opus)), and CMake doesn't allow
+    # target_include_directories on ALIAS targets.  Use the real target name.
+    target_include_directories(opus INTERFACE
         "${CMAKE_BINARY_DIR}/opus-compat"
     )
 
