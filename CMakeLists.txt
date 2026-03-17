@@ -287,8 +287,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     # OTRExporter includes ZAPDTR/ZAPD headers (e.g. ZResource.h) that
     # transitively need tinyxml2.h.  On PC it's a system header; on Android
     # it comes from FetchContent and must be explicitly linked.
-    # (libzip::zip is already propagated via libultraship's PUBLIC link.)
-    target_link_libraries(OTRExporter PRIVATE tinyxml2::tinyxml2)
+    # OTRExporter also includes ExporterArchiveO2R.h which needs <zip.h>.
+    # Although libzip::zip is PUBLIC on libultraship, OTRExporter uses
+    # add_dependencies (not target_link_libraries) so the PUBLIC include
+    # dirs don't propagate — we must link explicitly here too.
+    target_link_libraries(OTRExporter PRIVATE tinyxml2::tinyxml2 libzip::zip)
 endif()
 add_subdirectory(mm)
 

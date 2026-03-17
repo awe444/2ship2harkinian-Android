@@ -57,6 +57,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(OPUS_BUILD_TESTING OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(Opus)
 
+    # The opus source tree puts headers flat in include/ (e.g. opus.h), but
+    # mixer.c uses #include <opus/opus.h> which expects an opus/ subdirectory.
+    # System-installed opus has headers at <prefix>/include/opus/opus.h, but
+    # the FetchContent source doesn't mirror that layout.  Create a compat
+    # include directory with a symlink so the <opus/...> include paths resolve.
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/opus-compat")
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/opus-compat/opus")
+        file(CREATE_LINK "${opus_SOURCE_DIR}/include"
+             "${CMAKE_BINARY_DIR}/opus-compat/opus" SYMBOLIC)
+    endif()
+    target_include_directories(Opus::opus INTERFACE
+        "${CMAKE_BINARY_DIR}/opus-compat"
+    )
+
     # opusfile v0.12 predates cmake support; build its sources directly
     FetchContent_Declare(
         opusfile_src
