@@ -242,6 +242,19 @@ endif()
 ################################################################################
 add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)
 target_compile_definitions(libultraship PUBLIC INCLUDE_MPQ_SUPPORT)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # The mobile-port sources in kenix3/libultraship use include paths that
+    # assume the ship/ subtree is an include root:
+    #   MobileImpl.cpp  → #include "MobileImpl.h"
+    #   Gui.cpp         → #include "port/mobile/MobileImpl.h"
+    # The actual header lives at include/ship/port/mobile/MobileImpl.h, so
+    # we need both directories on the search path.
+    target_include_directories(libultraship PRIVATE
+        ${CMAKE_SOURCE_DIR}/libultraship/include/ship
+        ${CMAKE_SOURCE_DIR}/libultraship/include/ship/port/mobile
+    )
+endif()
 add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
 add_subdirectory(OTRExporter)
 add_subdirectory(mm)
