@@ -255,17 +255,21 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     # which doesn't exist in the submodule (the real header is at
     # include/libultraship/bridge/consolevariablebridge.h).  The android-compat/
     # directory contains a forwarding shim for this path.
-    # include/ship must be PUBLIC so game code (e.g. FreeLook.cpp) that does
-    # #include "port/mobile/MobileImpl.h" can find the header too.
+    #
+    # android-compat/ must be PUBLIC and listed BEFORE include/ship so that
+    # android-compat/port/mobile/MobileImpl.h shadows the submodule's version.
+    # The compat header adds stub declarations for Ship::Mobile methods
+    # (IsUsingTouchscreenControls, GetCameraYaw, GetCameraPitch) that
+    # FreeLook.cpp's #ifdef __ANDROID__ blocks call but which don't exist in
+    # kenix3/libultraship (b2dd85ca).
     target_include_directories(libultraship PUBLIC
+        ${CMAKE_SOURCE_DIR}/android-compat
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship
     )
-    # include/ship/port/mobile (for bare #include "MobileImpl.h" in libultraship)
-    # and android-compat/ (for the consolevariablebridge.h shim) are only needed
-    # by libultraship's own sources, so they stay PRIVATE.
+    # include/ship/port/mobile is only needed by libultraship's own sources
+    # (for bare #include "MobileImpl.h" in MobileImpl.cpp), so it stays PRIVATE.
     target_include_directories(libultraship PRIVATE
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship/port/mobile
-        ${CMAKE_SOURCE_DIR}/android-compat
     )
     # libultraship's public header O2rArchive.h includes "zip.h".  On PC,
     # libzip is system-installed so zip.h is globally visible.  On Android,
