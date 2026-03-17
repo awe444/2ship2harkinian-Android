@@ -250,9 +250,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     #   Gui.cpp         → #include "port/mobile/MobileImpl.h"
     # The actual header lives at include/ship/port/mobile/MobileImpl.h, so
     # we need both directories on the search path.
+    #
+    # MobileImpl.cpp also includes "ship/public/bridge/consolevariablebridge.h"
+    # which doesn't exist in the submodule (the real header is at
+    # include/libultraship/bridge/consolevariablebridge.h).  The android-compat/
+    # directory contains a forwarding shim for this path.
     target_include_directories(libultraship PRIVATE
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship/port/mobile
+        ${CMAKE_SOURCE_DIR}/android-compat
     )
 endif()
 add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
