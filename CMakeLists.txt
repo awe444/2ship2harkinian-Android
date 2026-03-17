@@ -255,8 +255,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     # which doesn't exist in the submodule (the real header is at
     # include/libultraship/bridge/consolevariablebridge.h).  The android-compat/
     # directory contains a forwarding shim for this path.
-    target_include_directories(libultraship PRIVATE
+    # include/ship must be PUBLIC so game code (e.g. FreeLook.cpp) that does
+    # #include "port/mobile/MobileImpl.h" can find the header too.
+    target_include_directories(libultraship PUBLIC
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship
+    )
+    # include/ship/port/mobile (for bare #include "MobileImpl.h" in libultraship)
+    # and android-compat/ (for the consolevariablebridge.h shim) are only needed
+    # by libultraship's own sources, so they stay PRIVATE.
+    target_include_directories(libultraship PRIVATE
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship/port/mobile
         ${CMAKE_SOURCE_DIR}/android-compat
     )
