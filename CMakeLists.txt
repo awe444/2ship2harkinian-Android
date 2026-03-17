@@ -262,6 +262,21 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     )
 endif()
 add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # ZAPDTR/ZAPD/CrashHandler.cpp includes <execinfo.h> on POSIX platforms,
+    # but Android's Bionic libc doesn't provide backtrace() at API < 33.
+    # android-compat/execinfo.h supplies inline no-op stubs.  BEFORE ensures
+    # it shadows the NDK's header.
+    target_include_directories(ZAPDLib BEFORE PRIVATE
+        ${CMAKE_SOURCE_DIR}/android-compat
+    )
+    # libpng generates pnglibconf.h in the build directory, but
+    # PNG_PNG_INCLUDE_DIR only points at the source dir.  ZAPD's
+    # ImageBackend.cpp includes <png.h> which in turn needs pnglibconf.h.
+    target_include_directories(ZAPDLib PRIVATE
+        ${png_BINARY_DIR}
+    )
+endif()
 add_subdirectory(OTRExporter)
 add_subdirectory(mm)
 
