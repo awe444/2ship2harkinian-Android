@@ -218,8 +218,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
     find_package(PNG QUIET)
     if (NOT ${PNG_FOUND})
-        set(PNG_SHARED OFF CACHE BOOL "" FORCE)
-        set(PNG_STATIC ON CACHE BOOL "" FORCE)
+        set(PNG_SHARED ON CACHE BOOL "" FORCE)
+        set(PNG_STATIC OFF CACHE BOOL "" FORCE)
         set(PNG_TESTS OFF CACHE BOOL "" FORCE)
         FetchContent_Declare(
             PNG
@@ -228,10 +228,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
             OVERRIDE_FIND_PACKAGE
         )
         FetchContent_MakeAvailable(PNG)
-        # libpng creates png_static but not the PNG::PNG imported target that
+        # libpng creates png_shared but not the PNG::PNG imported target that
         # FindPNG.cmake normally provides.  ZAPD links against PNG::PNG.
+        # Build as SHARED so libpng16.so is packaged into the APK (matching
+        # the old working build).
         if (NOT TARGET PNG::PNG)
-            add_library(PNG::PNG ALIAS png_static)
+            add_library(PNG::PNG ALIAS png_shared)
         endif()
         set(PNG_PNG_INCLUDE_DIR "${png_SOURCE_DIR}" CACHE PATH "" FORCE)
     endif()
