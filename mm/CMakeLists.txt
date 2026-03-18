@@ -45,6 +45,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
         Ogg
         GIT_REPOSITORY https://github.com/xiph/ogg.git
         GIT_TAG v1.3.5
+        OVERRIDE_FIND_PACKAGE
     )
     FetchContent_MakeAvailable(Ogg)
 
@@ -73,6 +74,16 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     target_include_directories(opus INTERFACE
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/opus-compat>
     )
+
+    # libvorbis — required by AudioSampleFactory.cpp for vorbis/codec.h and
+    # vorbis/vorbisfile.h.  Uses find_package(Ogg) internally, which is
+    # satisfied by the OVERRIDE_FIND_PACKAGE on the Ogg declaration above.
+    FetchContent_Declare(
+        Vorbis
+        GIT_REPOSITORY https://github.com/xiph/vorbis.git
+        GIT_TAG v1.3.7
+    )
+    FetchContent_MakeAvailable(Vorbis)
 
     # opusfile v0.12 predates cmake support; build its sources directly
     FetchContent_Declare(
@@ -665,6 +676,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
         "ZAPDLib;"
         SDL2::SDL2
         opusfile
+        vorbisfile
         Threads::Threads
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
