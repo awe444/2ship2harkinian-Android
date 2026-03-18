@@ -6,8 +6,13 @@
 #include <libultraship/libultra/types.h>
 
 std::vector<std::string> Rando::Spoiler::spoilerOptions;
-const std::filesystem::path randomizerFolderPath(Ship::Context::GetPathRelativeToAppDirectory("randomizer",
-                                                                                              appShortName));
+// Lazy-initialized to avoid calling SDL_AndroidGetExternalStoragePath during
+// static construction (before SDL JNI is set up on Android).
+static const std::filesystem::path& getRandomizerFolderPath() {
+    static const std::filesystem::path path(
+        Ship::Context::GetPathRelativeToAppDirectory("randomizer", appShortName));
+    return path;
+}
 
 // This function refreshes the list of spoiler files in the randomizer folder, this list is used in the Randomizer UI,
 // and also includes an option to generate a new seed at the top of the list.
@@ -18,12 +23,12 @@ void Rando::Spoiler::RefreshOptions() {
     s32 spoilerFileIndex = -1;
 
     // ensure the randomizer folder exists
-    if (!std::filesystem::exists(randomizerFolderPath)) {
-        std::filesystem::create_directory(randomizerFolderPath);
+    if (!std::filesystem::exists(getRandomizerFolderPath())) {
+        std::filesystem::create_directory(getRandomizerFolderPath());
     }
 
     // Add all files in the randomizer folder to the list of spoiler options
-    for (const auto& entry : std::filesystem::directory_iterator(randomizerFolderPath)) {
+    for (const auto& entry : std::filesystem::directory_iterator(getRandomizerFolderPath())) {
         if (entry.is_regular_file()) {
             std::string fileName = entry.path().filename().string();
             Rando::Spoiler::spoilerOptions.push_back(fileName);
