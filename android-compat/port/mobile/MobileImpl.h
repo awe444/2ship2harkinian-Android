@@ -1,9 +1,10 @@
 // Compatibility replacement for Android builds.
-// kenix3/libultraship (b2dd85ca) Ship::Mobile only has ImGuiProcessEvent,
+// kenix3/libultraship Ship::Mobile only has ImGuiProcessEvent,
 // but the game's FreeLook.cpp (Android blocks) calls
 // IsUsingTouchscreenControls / GetCameraYaw / GetCameraPitch.
 // This header shadows libultraship/include/ship/port/mobile/MobileImpl.h
-// and provides inline stubs for the missing methods.
+// and declares the extra methods.  Definitions live in
+// mm/2s2h/android_jni_controller.cpp (compiled into the 2ship target).
 #pragma once
 
 #include <cstdint>
@@ -17,10 +18,11 @@ class Mobile {
   public:
     static void ImGuiProcessEvent(bool wantsTextInput);
 
-    // Stubs for mobile camera API not yet in kenix3/libultraship.
-    static bool IsUsingTouchscreenControls() { return false; }
-    static float GetCameraYaw() { return 0.0f; }
-    static float GetCameraPitch() { return 0.0f; }
+    // Implemented in mm/2s2h/android_jni_controller.cpp together with the
+    // JNI touch-controller functions (attachController, setButton, etc.).
+    static bool IsUsingTouchscreenControls();
+    static float GetCameraYaw();
+    static float GetCameraPitch();
 };
 
 }; // namespace Ship
