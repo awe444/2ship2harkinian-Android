@@ -208,7 +208,9 @@ public class MainActivity extends SDLActivity{
             if (sourceFiles != null) {
                 for (File file : sourceFiles) {
                     String name = file.getName();
-                    // Skip assets and 2ship.o2r — they get fresh-copied from the APK below
+                    // Skip assets and 2ship.o2r — they get fresh-copied from the APK below.
+                    // mm.o2r IS migrated because it's user-generated (extracted from ROM)
+                    // and would need to be re-extracted otherwise.
                     if (name.equals("assets") || name.equals("2ship.o2r")) {
                         continue;
                     }
