@@ -37,10 +37,12 @@ void DrawMenuBarIcon() {
 void DrawBenMenu() {
     if (UIWidgets::BeginMenu("2Ship")) {
         if (UIWidgets::MenuItem("Hide Menu Bar",
-#if !defined(__SWITCH__) && !defined(__WIIU__) && !defined(__ANDROID__)
-                                "F1"
-#else
+#if defined(__ANDROID__)
+                                "Select"
+#elif defined(__SWITCH__) || defined(__WIIU__)
                                 "[-]"
+#else
+                                "F1"
 #endif
                                 )) {
             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuBar()->ToggleVisibility();

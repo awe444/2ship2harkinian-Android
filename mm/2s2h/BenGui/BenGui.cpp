@@ -83,8 +83,22 @@ void SetupGuiElements() {
     mBenMenuBar = std::make_shared<BenMenuBar>(CVAR_MENU_BAR_OPEN, CVarGetInteger(CVAR_MENU_BAR_OPEN, 0));
     gui->SetMenuBar(std::reinterpret_pointer_cast<Ship::GuiMenuBar>(mBenMenuBar));
 
+#ifdef __ANDROID__
+    // Enable controller navigation by default on Android so the physical
+    // Select/Back button can open the ImGui menu (there is no F1 key).
+    // Only do this once on first run; a dedicated flag tracks whether we've
+    // applied the default so the user can later disable it in settings.
+    if (!CVarGetInteger("gSettings.ControlNavDefaultApplied", 0)) {
+        CVarSetInteger(CVAR_IMGUI_CONTROLLER_NAV, 1);
+        CVarSetInteger("gSettings.ControlNavDefaultApplied", 1);
+        Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+    }
+#endif
+
     if (!gui->GetMenuBar() && !CVarGetInteger("gSettings.DisableMenuShortcutNotify", 0)) {
-#if defined(__SWITCH__) || defined(__WIIU__) || defined(__ANDROID__)
+#if defined(__ANDROID__)
+        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press Select to access enhancements menu");
+#elif defined(__SWITCH__) || defined(__WIIU__)
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press - to access enhancements menu");
 #else
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press F1 to access enhancements menu");
