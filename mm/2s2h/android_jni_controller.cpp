@@ -78,7 +78,9 @@ Java_com_dishii_mm_MainActivity_setButton(JNIEnv* /*env*/, jobject /*obj*/,
         return;
 
     if (button < 0) {
-        // Negative button ids map to axes (triggers / shoulders).
+        // Negative button ids map to axes (e.g. -4 → axis 4 for triggers).
+        // Using -SDL_MAX_SINT16 for "released" instead of 0 is intentional:
+        // the original Waterdish code noted an SDL bug where 0 didn't register.
         SDL_JoystickSetVirtualAxis(virtual_joystick, -button,
                                    value ? SDL_MAX_SINT16 : -SDL_MAX_SINT16);
     } else {
