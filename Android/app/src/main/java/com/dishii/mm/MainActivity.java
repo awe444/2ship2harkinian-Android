@@ -56,8 +56,14 @@ public class MainActivity extends SDLActivity{
 
         super.onCreate(savedInstanceState);
 
-        setupControllerOverlay();
-        attachController();
+        // getContentView() returns null when SDLActivity.onCreate() encounters
+        // broken libraries (e.g. SDL version mismatch) and returns early without
+        // creating mLayout.  Guard against that to let the SDL error dialog show
+        // instead of crashing with a NullPointerException.
+        if (getContentView() != null) {
+            setupControllerOverlay();
+            attachController();
+        }
     }
 
     public static void waitForSetupFromNative() {

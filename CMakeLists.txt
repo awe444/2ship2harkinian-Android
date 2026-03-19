@@ -164,6 +164,22 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     include(FetchContent)
 
+    # SDL2 must match the Java SDLActivity.java version constants (2.32.8).
+    # kenix3/libultraship's android.cmake fetches SDL 2.28.1 which causes a
+    # version mismatch (mBrokenLibraries = true) and an immediate NPE crash.
+    # Providing SDL 2.32.8 here with OVERRIDE_FIND_PACKAGE makes
+    # libultraship's find_package(SDL2) use this version instead.
+    find_package(SDL2 QUIET)
+    if (NOT ${SDL2_FOUND})
+        FetchContent_Declare(
+            SDL2
+            GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+            GIT_TAG release-2.32.8
+            OVERRIDE_FIND_PACKAGE
+        )
+        FetchContent_MakeAvailable(SDL2)
+    endif()
+
     find_package(nlohmann_json QUIET)
     if (NOT ${nlohmann_json_FOUND})
         FetchContent_Declare(
