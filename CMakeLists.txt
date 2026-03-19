@@ -341,8 +341,8 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION ./assets/xml 
 endif()
 
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Android")
-file(COPY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION "${CMAKE_SOURCE_DIR}/Android/app/src/main/assets/assets/extractor")
-file(COPY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION "${CMAKE_SOURCE_DIR}/Android/app/src/main/assets/assets/extractor/xmls")
+file(COPY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION "${CMAKE_SOURCE_DIR}/Android/app/src/main/assets/assets")
+file(COPY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION "${CMAKE_SOURCE_DIR}/Android/app/src/main/assets/assets/xml")
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/2ship.o2r")
     file(COPY "${CMAKE_SOURCE_DIR}/2ship.o2r" DESTINATION "${CMAKE_SOURCE_DIR}/Android/app/src/main/assets/")
