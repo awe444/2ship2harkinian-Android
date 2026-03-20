@@ -28,8 +28,14 @@ extern SaveContext gSaveContext;
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
 
+static const std::unordered_map<int32_t, const char*> imguiScaleOptions = {
+    { 0, "Small" },
+    { 1, "Normal" },
+    { 2, "Large" },
+    { 3, "X-Large" },
+};
+
 static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
-    { UIWidgets::Colors::Red, "Red" },
     { UIWidgets::Colors::DarkRed, "Dark Red" },
     { UIWidgets::Colors::Orange, "Orange" },
     { UIWidgets::Colors::Green, "Green" },
@@ -169,6 +175,7 @@ static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = 
 
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
+void ScaleImGui();
 void FreeLookPitchMinMax() {
     f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
     f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
@@ -316,6 +323,13 @@ void BenMenu::AddSettings() {
                      .Tooltip("Changes the Theme of the Menu Widgets.")
                      .ComboMap(&menuThemeOptions)
                      .DefaultIndex(Colors::LightBlue));
+    AddWidget(path, "ImGui Menu Scaling", WIDGET_CVAR_COMBOBOX)
+        .CVar("gSettings.ImGuiScale")
+        .Callback([](WidgetInfo& info) { ScaleImGui(); })
+        .Options(ComboboxOptions()
+                     .Tooltip("Changes the scale of the ImGui menu elements.")
+                     .ComboMap(&imguiScaleOptions)
+                     .DefaultIndex(1));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_IMGUI_CONTROLLER_NAV)
