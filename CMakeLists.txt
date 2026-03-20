@@ -276,10 +276,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     #
     # android-compat/ must be PUBLIC and listed BEFORE include/ship so that
     # android-compat/port/mobile/MobileImpl.h shadows the submodule's version.
-    # The compat header adds stub declarations for Ship::Mobile methods
-    # (IsUsingTouchscreenControls, GetCameraYaw, GetCameraPitch) that
-    # FreeLook.cpp's #ifdef __ANDROID__ blocks call but which don't exist in
-    # kenix3/libultraship (b2dd85ca).
     target_include_directories(libultraship PUBLIC
         ${CMAKE_SOURCE_DIR}/android-compat
         ${CMAKE_SOURCE_DIR}/libultraship/include/ship

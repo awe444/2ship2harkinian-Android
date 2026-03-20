@@ -2,9 +2,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "CameraUtils.h"
-#ifdef __ANDROID__
-#include "port/mobile/MobileImpl.h"
-#endif
 
 extern "C" {
 #include "macros.h"
@@ -103,13 +100,6 @@ bool Camera_FreeLook(Camera* camera) {
     f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f *
                     (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
 
-#ifdef __ANDROID__
-    if(Ship::Mobile::IsUsingTouchscreenControls()) {
-        yawDiff += -Ship::Mobile::GetCameraYaw()*10.0f;
-        pitchDiff += Ship::Mobile::GetCameraPitch()*10.0f;
-    }
-#endif
-
     yaw += yawDiff * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
     pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
@@ -153,12 +143,6 @@ bool Camera_FreeLook(Camera* camera) {
 bool Camera_CanFreeLook(Camera* camera) {
     f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
     f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
-
-#ifdef __ANDROID__
-    if(!sCanFreeLook && Ship::Mobile::IsUsingTouchscreenControls() && (Ship::Mobile::GetCameraYaw()>0||Ship::Mobile::GetCameraPitch()>0)) {
-            sCanFreeLook=true;
-    }
-#endif
 
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
         sCanFreeLook = true;
