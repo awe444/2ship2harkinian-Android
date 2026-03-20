@@ -265,6 +265,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     # silently returns zeros on GLES, causing Pictobox photos to be black.
     # Read as RGBA8888 and convert to RGBA5551 in software.
     set(_GFX_OGL_FILE "${CMAKE_SOURCE_DIR}/libultraship/src/fast/backends/gfx_opengl.cpp")
+    if (NOT EXISTS "${_GFX_OGL_FILE}")
+        message(FATAL_ERROR "Cannot apply GLES patch: ${_GFX_OGL_FILE} not found. "
+            "Ensure the libultraship submodule is initialized (git submodule update --init).")
+    endif()
     file(READ "${_GFX_OGL_FILE}" _GFX_OGL_CONTENT)
     string(FIND "${_GFX_OGL_CONTENT}" "USE_OPENGLES // GLES ReadFramebufferToCPU fix" _GLES_PATCHED)
     if (_GLES_PATCHED EQUAL -1)
