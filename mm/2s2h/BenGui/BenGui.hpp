@@ -10,6 +10,7 @@ namespace BenGui {
     void SetupGuiElements();
     void Draw();
     void Destroy();
+    void ScaleImGui();
     UIWidgets::Colors GetMenuThemeColor();
 }
 

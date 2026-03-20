@@ -36,6 +36,34 @@
 #include "DeveloperTools/MessageViewer.h"
 
 namespace BenGui {
+
+#ifdef __WIIU__
+static const uint32_t defaultImGuiScale = 3;
+#else
+static const uint32_t defaultImGuiScale = 1;
+#endif
+
+static const float imguiScaleOptionToValue[4] = { 0.75f, 1.0f, 1.5f, 2.0f };
+
+static int32_t previousImGuiScaleIndex = -1;
+static float previousImGuiScale = 1.0f;
+
+void ScaleImGui() {
+    int32_t imGuiScaleIndex = CVarGetInteger("gSettings.ImGuiScale", defaultImGuiScale);
+    if (imGuiScaleIndex < 0 || imGuiScaleIndex >= (int32_t)std::size(imguiScaleOptionToValue)) {
+        imGuiScaleIndex = defaultImGuiScale;
+    }
+    if (imGuiScaleIndex == previousImGuiScaleIndex) {
+        return;
+    }
+    float scale = imguiScaleOptionToValue[imGuiScaleIndex];
+    float newScale = scale / previousImGuiScale;
+    ImGui::GetStyle().ScaleAllSizes(newScale);
+    ImGui::GetIO().FontGlobalScale = scale;
+    previousImGuiScale = scale;
+    previousImGuiScaleIndex = imGuiScaleIndex;
+}
+
 // MARK: - Delegates
 
 std::shared_ptr<BenMenuBar> mBenMenuBar;
@@ -79,6 +107,8 @@ void SetupGuiElements() {
     style.FramePadding = ImVec2(4.0f, 6.0f);
     style.ItemSpacing = ImVec2(8.0f, 6.0f);
     style.Colors[ImGuiCol_MenuBarBg] = UIWidgets::ColorValues.at(UIWidgets::Colors::DarkGray);
+
+    ScaleImGui();
 
     mBenMenuBar = std::make_shared<BenMenuBar>(CVAR_MENU_BAR_OPEN, CVarGetInteger(CVAR_MENU_BAR_OPEN, 0));
     gui->SetMenuBar(std::reinterpret_pointer_cast<Ship::GuiMenuBar>(mBenMenuBar));
