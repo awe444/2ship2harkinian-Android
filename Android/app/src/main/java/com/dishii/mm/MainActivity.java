@@ -56,8 +56,14 @@ public class MainActivity extends SDLActivity{
 
         super.onCreate(savedInstanceState);
 
-        setupControllerOverlay();
-        attachController();
+        // getContentView() returns null when SDLActivity.onCreate() encounters
+        // broken libraries (e.g. SDL version mismatch) and returns early without
+        // creating mLayout.  Guard against that to let the SDL error dialog show
+        // instead of crashing with a NullPointerException.
+        if (getContentView() != null) {
+            setupControllerOverlay();
+            attachController();
+        }
     }
 
     public static void waitForSetupFromNative() {
@@ -79,7 +85,7 @@ public class MainActivity extends SDLActivity{
     }
 
     private void deleteOutdatedAssets() {
-        File targetRootFolder = new File(Environment.getExternalStorageDirectory(), "2S2H");
+        File targetRootFolder = getExternalFilesDir(null);
 
         File sohFile = new File(targetRootFolder, "2ship.o2r");
         File ootFile = new File(targetRootFolder, "mm.o2r");
@@ -162,7 +168,7 @@ public class MainActivity extends SDLActivity{
     }
 
     public void checkAndSetupFiles() {
-        File targetRootFolder = new File(Environment.getExternalStorageDirectory(), "2S2H");
+        File targetRootFolder = getExternalFilesDir(null);
         File assetsFolder = new File(targetRootFolder, "assets");
         File sohOtrFile = new File(targetRootFolder, "2ship.o2r");
 
@@ -190,19 +196,23 @@ public class MainActivity extends SDLActivity{
 
     private void setupFilesInBackground(File targetRootFolder) {
 
-        File sourceOldRoot = getExternalFilesDir(null);
-        File sourceSavesDir = new File(sourceOldRoot, "saves"); // how to tell if there's anything to migrate
+        // === Migration from old /storage/emulated/0/2S2H/ directory ===
+        // kenix3/libultraship uses SDL_AndroidGetExternalStoragePath() (= getExternalFilesDir)
+        // instead of the old hardcoded /storage/emulated/0/2S2H path.  Migrate user data
+        // (saves, mods, mm.o2r, etc.) from the old location to the new one.
+        File oldSharedRoot = new File(Environment.getExternalStorageDirectory(), "2S2H");
+        if (oldSharedRoot.exists() && oldSharedRoot.isDirectory()) {
+            Log.i("setupFiles", "Migrating old data from: " + oldSharedRoot.getAbsolutePath());
 
-        // === Migration from old Android/data/.../files/ directory ===
-        if (sourceOldRoot != null && sourceSavesDir.isDirectory()) {
-            Log.i("setupFiles", "Migrating old data from: " + sourceOldRoot.getAbsolutePath());
-
-            File[] sourceFiles = sourceOldRoot.listFiles();
+            File[] sourceFiles = oldSharedRoot.listFiles();
             if (sourceFiles != null) {
                 for (File file : sourceFiles) {
                     String name = file.getName();
-                    if (name.equals("assets") || name.equals("2ship.o2r") || name.equals("mm.o2r")) {
-                        continue; // Skip these
+                    // Skip assets and 2ship.o2r — they get fresh-copied from the APK below.
+                    // mm.o2r IS migrated because it's user-generated (extracted from ROM)
+                    // and would need to be re-extracted otherwise.
+                    if (name.equals("assets") || name.equals("2ship.o2r")) {
+                        continue;
                     }
 
                     File dest = new File(targetRootFolder, name);
@@ -286,7 +296,7 @@ public class MainActivity extends SDLActivity{
             Uri selectedFileUri = data.getData();
             String fileName = "MM.z64";
 
-            File destinationDirectory = new File(Environment.getExternalStorageDirectory(), "2S2H");
+            File destinationDirectory = getExternalFilesDir(null);
             File destinationFile = new File(destinationDirectory, fileName);
 
             if (destinationDirectory != null && selectedFileUri != null) {
